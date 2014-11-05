@@ -3,7 +3,7 @@
 
 import operator
 import string
-import re
+
 
 ARITHMETIC_OPERATORS = {
     '+':  operator.add, '-':  operator.sub,

@@ -25,6 +25,7 @@ optional_arguments = {
     '-n':
         {
             'help': 'the number of the thread(default is 10)',
+            'dest': 'thread_num',
             'type': int,
             'nargs': 1,
             'default': 10
@@ -33,12 +34,14 @@ optional_arguments = {
         {
             'help': 'the output dirs of the picture store(default is ./pics)',
             'action': ReadableDir,
+            'dest': 'output',
             'nargs': 1,
             'default': './pics'
         },
     '-l':
         {
             'help': 'the limits of the picture when program exit(default no limits).',
+            'dest': 'limit',
             'type': int,
             'nargs': 1,
             'default': 0

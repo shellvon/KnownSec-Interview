@@ -28,11 +28,36 @@ Usage:
 
 如果想要或许详细的帮助信息，可以:
 
-    python sqlmap.py -h 或者python sqlmap.py --help
+    python mm_crawler.py -h 或者python sqlmap.py --help
 
 指定收集的图片存取路径和其他帮助信息可以参加题目描述和具体使用-h有提示，比如指定线程数量为40个:
 
-    python sqlmap.py -n 40
+    python mm_crawler.py -n 40
+
+----------
+
+Requirements
+----
+
+代码由Ubuntu Python 2.7及其第三方包Requests完成。
+
+Why I Not Choose Scrapy
+----
+
+本来打算借此机会使用Scrapy完成该任务。有2个原因放弃了选择
+
++ 公司无法看到Scrapy文档，所以选择了较为熟悉的Requests自己写。
++ Requests公司电脑上天然拥有。
+
+思路参考之前写的豆瓣音乐爬虫，因为之前代码的失败【比如部分歌曲下载失败】的经验，所以此时一开始设计就打算多加入
+诸如精细度的日志/进度信息等。因为网页和图片较多，所以多线程这里自然想到要线程池。对于需求提到的指定下载图片个数之后必须能结束下载，所以我加入了统计失败/成功的计数器。
+
+另外需求提到复用性，比如可能会下载其他地方的，把下载处理图片的函数单独提取出来。这样下次需要改变website的时候尽可能最少改动代码。
+
+Improved
+----
+
+我其实还是想学习Scrapy.
 
 Links
 ----
@@ -41,3 +66,4 @@ Links
 
 * Python:[https://www.python.org/](https://www.python.org/)
 
+* Requests:[http://docs.python-requests.org/](http://docs.python-requests.org/)
