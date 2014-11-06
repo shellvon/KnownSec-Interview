@@ -27,7 +27,6 @@ optional_arguments = {
             'help': 'the number of the thread(default is 10)',
             'dest': 'thread_num',
             'type': int,
-            'nargs': 1,
             'default': 10
         },
     '-o':
@@ -43,14 +42,13 @@ optional_arguments = {
             'help': 'the limits of the picture when program exit(default no limits).',
             'dest': 'limit',
             'type': int,
-            'nargs': 1,
             'default': 0
         },
     '-v':
         {
             'help': 'show versions',
             'action': 'version',
-            'version': '0.0.1'
+            'version': '%(prog)s 0.0.1 by shellvon'
         }
 }
 

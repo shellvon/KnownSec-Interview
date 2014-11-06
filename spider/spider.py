@@ -4,8 +4,10 @@
 
 import threading
 import Queue
-import md5      # for hash...
-import time     # for test time.
+import md5
+import time
+import os
+import requests
 
 
 class ThreadingPool(object):
@@ -37,7 +39,7 @@ class ThreadingPool(object):
         """
         if identify not in self.jobs:
             self.jobs.append(identify)
-            self.work_queue.put((func, args))
+            self.work_queue.put((func, identify, args))
 
     def get_job(self):
         """
@@ -118,9 +120,9 @@ class ProgressInfoThread(threading.Thread):
             time.sleep(self.time_to_sleep)
 
 
-class DownloadImageThread(threading.Thread):
+class FetchURLThread(threading.Thread):
     """
-    for download the image
+    for fetch all the url~
     """
     def __init__(self, pool):
         threading.Thread.__init__(self)
@@ -129,19 +131,73 @@ class DownloadImageThread(threading.Thread):
     def run(self):
         while True:
             try:
-                func, args = self.thread_pool.get_job()
-                self.thread_pool.increase_running_num()
-                result = func('url', args)
-                if result:
-                    self.thread_pool.increase_success_num()
+                pass
+            except:
+                break
+
+
+class DownloadImageThread(threading.Thread):
+    """
+    for download the image
+    """
+    _ALREADY_DOWNLOAD_LST = []
+    _LIMITS_ = 0
+
+    def __init__(self, pool):
+        threading.Thread.__init__(self)
+        self.thread_pool = pool
+
+    def download(self, url, path):
+        if not os.path.exists(path):
+            try:
+                os.mkdir(path)
+            except:
+                print 'mkdir errors.'
+                return False
+        filename = url.split('/')[-1]
+        fullname = os.path.join(path, filename)
+        # print 'down_picture from url:{0}'.format(url)
+        try:
+            req = requests.get(url)
+            if req.status_code == 200:
+                with open(fullname, 'wb') as f:
+                    f.write(req.content)
+                return True
+            return False
+        except Exception, e:
+            print str(e)
+            return False
+
+    def run(self):
+        """
+
+        """
+        while True:
+            try:
+                func, identify, args = self.thread_pool.get_job()
+                self.thread_pool.increase_running_num()     # add running threading numbers
+                if identify.endswith('.jpg') and identify not in DownloadImageThread._ALREADY_DOWNLOAD_LST:
                     if args.limit and self.thread_pool.get_success_num() >= args.limit:
-                        break
-                else:
-                    self.thread_pool.increase_failed_num()
-                self.thread_pool.decrease_running_num()
+                            while self.thread_pool.get_running_num() >= 0:
+                                self.thread_pool.decrease_running_num()
+                            return None  # break out this while loop.
+                    DownloadImageThread._ALREADY_DOWNLOAD_LST.append(i)
+                    result = self.download(identify, args.output)
+                    if result:
+                        self.thread_pool.increase_success_num()
+                    else:
+                        self.thread_pool.increase_failed_num()
+                elif not identify.endswith('.jpg'):
+                    to_scan_url_lst, img_url_lst = func(identify, args)
+                    if to_scan_url_lst:
+                        for i in to_scan_url_lst:
+                            self.thread_pool.add_job(func, i, args)
+                    if img_url_lst:
+                        for i in img_url_lst:
+                            self.thread_pool.add_job(func, i, args)
+                self.thread_pool.decrease_running_num()     # finished this treading.
                 self.thread_pool.job_done()
             except Queue.Empty:
-                # pass
                 break
             except Exception, e:
                 print str(e)
