@@ -21,7 +21,7 @@ class ReadableDir(argparse.Action):
         else:
             raise argparse.ArgumentTypeError(message)
 
-optional_arguments = {
+OPTIONAL_ARGUMENTS = {
     '-n':
         {
             'help': 'the number of the thread(default is 10)',
@@ -44,6 +44,13 @@ optional_arguments = {
             'type': int,
             'default': 0
         },
+    '-t':
+        {
+            'help': 'delay to display the progress info for a given number of seconds (default 10 seconds).',
+            'dest': 'timeout',
+            'type': float,
+            'default': 10
+        },
     '-v':
         {
             'help': 'show versions',
@@ -52,5 +59,16 @@ optional_arguments = {
         }
 }
 
+PARSER = argparse.ArgumentParser(
+    description='The %(prog)s by shellvon',
+    epilog="""
+            爬虫->22mm.cc上->美女图片
+    """
+)
+
+
+def get_opt(arguments=OPTIONAL_ARGUMENTS, parser=PARSER):
+    map(lambda x: parser.add_argument(x, **arguments[x]), arguments)
+    return parser.parse_args()
 if __name__ == '__main__':
     pass

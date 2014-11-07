@@ -12,13 +12,14 @@ import requests
 
 class ThreadingPool(object):
     """docstring for threadingPool"""
-    def __init__(self, thread_num):
+    def __init__(self, thread_num, time_to_sleep):
         self.threads = []
         self.work_queue = Queue.Queue()
         self.failed_num = 0
         self.success_num = 0
         self.jobs = []
         self.thread_num = thread_num
+        self.time_to_sleep = time_to_sleep
         self.thread_name = threading.current_thread().getName()
         self._init_pool()
         self.running_num = 0
@@ -27,11 +28,9 @@ class ThreadingPool(object):
         """
         init the thread pool
         """
-        # add all the downloadImageThread
         for i in xrange(self.thread_num):
             self.threads.append(DownloadImageThread(self))
-        # add the progress thread.
-        self.threads.append(ProgressInfoThread(self))
+        self.threads.append(ProgressInfoThread(self, self.time_to_sleep))
 
     def add_job(self, func, identify, args):
         """
@@ -112,7 +111,7 @@ class ProgressInfoThread(threading.Thread):
 
     def run(self):
         while True:
-            running_now = self.thread_pool.get_running_num()    # add this for break out loop
+            running_now = self.thread_pool.get_running_num()
             if running_now <= 0:
                 break
             progess_info = self.thread_pool.get_progressinfo()
@@ -141,20 +140,22 @@ class DownloadImageThread(threading.Thread):
     for download the image
     """
     _ALREADY_DOWNLOAD_LST = []
-    _LIMITS_ = 0
 
     def __init__(self, pool):
         threading.Thread.__init__(self)
         self.thread_pool = pool
 
     def download(self, url, path):
+        lst = url.split('/')
+        pic_type = lst[-4]
+        filename = lst[-1]
+        path = os.path.join(path,pic_type)
         if not os.path.exists(path):
             try:
-                os.mkdir(path)
+                os.makedirs(path)
             except:
-                print 'mkdir errors.'
+                print 'mkdir dir:{0} errors'.format(path)
                 return False
-        filename = url.split('/')[-1]
         fullname = os.path.join(path, filename)
         # print 'down_picture from url:{0}'.format(url)
         try:
@@ -189,16 +190,17 @@ class DownloadImageThread(threading.Thread):
                         self.thread_pool.increase_failed_num()
                 elif not identify.endswith('.jpg'):
                     to_scan_url_lst, img_url_lst = func(identify, args)
-                    if to_scan_url_lst:
-                        for i in to_scan_url_lst:
-                            self.thread_pool.add_job(func, i, args)
                     if img_url_lst:
                         for i in img_url_lst:
                             self.thread_pool.add_job(func, i, args)
-                self.thread_pool.decrease_running_num()     # finished this treading.
+                    if to_scan_url_lst:
+                        for i in to_scan_url_lst:
+                            self.thread_pool.add_job(func, i, args)
+                self.thread_pool.decrease_running_num()
                 self.thread_pool.job_done()
             except Queue.Empty:
-                break
+                if self.thread_pool.get_running_num()<=0:
+                    break
             except Exception, e:
                 print str(e)
                 break

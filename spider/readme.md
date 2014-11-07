@@ -2,7 +2,7 @@ mm_crawler
 ==
 Description:
 ----
-mm_crawler 是用来爬去22mm.cc里面的图片爬虫，使用Python Scrapy,此代码来自于本次之知道创宇的校招题目，题目描述如下：
+mm_crawler 是用来爬22mm.cc里面的图片爬虫，使用Python Requests,此代码来自于本次之知道创宇的校招题目，题目描述如下：
 
 需满足：
 
@@ -24,17 +24,19 @@ mm_crawler 是用来爬去22mm.cc里面的图片爬虫，使用Python Scrapy,此
 
 Usage:
 ----
-`python mm_crawler.py  [-h] [-l L] [-o O] [-n N] [-v]`
+`python mm_crawler.py  [-h] [-l L] [-o O] [-n N] [-v] [-t T]`
 
 如果想要或许详细的帮助信息，可以:
 
-    python mm_crawler.py -h 或者python sqlmap.py --help
+    python mm_crawler.py -h 或者python mm_crawler.py --help
 
 指定收集的图片存取路径和其他帮助信息可以参加题目描述和具体使用-h有提示，比如指定线程数量为40个:
 
     python mm_crawler.py -n 40
 
-----------
+ScreenShot
+----
+![usage](screenshot/usage.png)
 
 Links
 ----
