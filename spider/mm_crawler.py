@@ -1,4 +1,4 @@
-# encoding=utf8
+# coding=utf8
 # author:shellvon
 
 import time
